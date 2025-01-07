@@ -37,7 +37,6 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     @Autowired
     private Visitors visitors;
-
     @Autowired
     private JobRepository jobRepository;
     @Autowired
@@ -48,8 +47,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     @Bean
     public Visitors visitors(){
+
         return new Visitors();
     }
+
 
     @Bean
     public Job importVistorsJob(){
@@ -71,11 +72,13 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     @Bean
     public ItemProcessor<Visitors, Visitors> itemProcessor(){
+
         return new VisitorsItemProcessor();
     }
 
     @Bean
     public ItemWriter<Visitors> writer(){
+
         return visitorsRepository::saveAll;
     }
 
@@ -102,7 +105,5 @@ public class BatchConfig extends DefaultBatchConfiguration {
         defaultLineMapper.setFieldSetMapper(fieldSetMapper);
         return defaultLineMapper;
     }
-
-
 
 }
