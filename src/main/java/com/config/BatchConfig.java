@@ -6,10 +6,12 @@ import com.repositories.VisitorsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.BatchConfigurationException;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -34,13 +36,12 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     @Autowired
     private VisitorsRepository visitorsRepository;
-
     @Autowired
     private Visitors visitors;
-    @Autowired
-    private JobRepository jobRepository;
+
     @Autowired
     private ItemReader<Visitors> visitorsItemReader;
+
 
     @Autowired
     private PlatformTransactionManager transactionManager;
@@ -53,7 +54,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
 
     @Bean
-    public Job importVistorsJob(){
+    public Job importVistorsJob(JobRepository jobRepository) {
         return new JobBuilder("importVistorsJob", jobRepository)
                 .start(importVistorsStep(jobRepository, visitors, transactionManager))
                 .build();
@@ -62,7 +63,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Bean
     public Step importVistorsStep(JobRepository jobRepository, Visitors visitors, PlatformTransactionManager transactionManager) {
         return new StepBuilder("importVistorsStep", jobRepository)
-                .<Visitors,Visitors> chunk(100,transactionManager)
+                .<Visitors, Visitors>chunk(100, transactionManager)
                 .reader(visitorsItemReader)
                 .processor(itemProcessor())
                 .writer(writer())
